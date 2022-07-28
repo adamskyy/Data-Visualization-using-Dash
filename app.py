@@ -1,10 +1,13 @@
-from dash import Dash, dcc, html, Input, Output, dash_table
+from dash import Dash, dcc, html, Input, Output, dash_table, callback
 import pandas as pd
 import dash_bootstrap_components as dbc
 
-app = Dash(external_stylesheets=[dbc.themes.LUX])
+import pages.variable_description as pg1
 
-df = pd.read_csv('test.csv')
+app = Dash(external_stylesheets=[dbc.themes.LUX], suppress_callback_exceptions=True)
+app.config.suppress_callback_exceptions = True
+
+df = pd.read_csv("train.csv")
 
 df.info()
 
@@ -14,31 +17,29 @@ SIDEBAR_STYLE = {
     "top": 0,
     "left": 0,
     "bottom": 0,
-    "width": "20rem",
+    "width": "12rem",
     "padding": "2rem 1rem",
-    "background-color": "#FF7300"
+    "background-color": "#FF7300",
 }
 
 # the styles for the main content position it to the right of the sidebar and
 # add some padding.
 CONTENT_STYLE = {
-    "margin-left": "20rem",
-    "margin-right": "2rem",
+    "margin-left": "12rem",
+    "margin-right": "0rem",
     "padding": "2rem 1rem",
-    "background-color": "#939393",
     "width": "auto",
+    "background-color": "#939393",
 }
 
 sidebar = html.Div(
     [
-        html.H6("Titanic dataset", className="display-6"),
+        html.H1("Titanic dataset", style={"fontWeight": "bold"}),
         html.Hr(),
-        html.P(
-            "Machine Learning from Disaster", className="lead"
-        ),
+        html.P("Machine Learning from Disaster", className="lead"),
         dbc.Nav(
             [
-                dbc.NavLink("Home", href="/", active="exact"),
+                dbc.NavLink("Variable Description", href="/", active="exact"),
                 dbc.NavLink("Page 1", href="/page-1", active="exact"),
                 dbc.NavLink("Page 2", href="/page-2", active="exact"),
             ],
@@ -51,8 +52,6 @@ sidebar = html.Div(
 
 content = html.Div(id="page-content", style=CONTENT_STYLE)
 
-home = dash_table.DataTable(df.to_dict('records'), [{"name": i, "id": i} for i in df.columns],
-style_table={'height': '300px', 'overflowY': 'auto'})
 
 app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
 
@@ -60,7 +59,7 @@ app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
 def render_page_content(pathname):
     if pathname == "/":
-        return home
+        return pg1.home
     elif pathname == "/page-1":
         return html.P("This is the content of page 1. Yay!")
     elif pathname == "/page-2":
@@ -75,5 +74,5 @@ def render_page_content(pathname):
     )
 
 
-if __name__ == '__main__':
-    app.run_server(debug=True)
+if __name__ == "__main__":
+    app.run_server(debug=True, port=3070)
