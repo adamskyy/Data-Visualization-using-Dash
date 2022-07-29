@@ -1,15 +1,12 @@
 from dash import Dash, dcc, html, Input, Output, dash_table, callback
-import pandas as pd
 import dash_bootstrap_components as dbc
 
-import pages.variable_description as pg1
+from pages import variable_analysis, variable_description, basic_analysis
+
 
 app = Dash(external_stylesheets=[dbc.themes.LUX], suppress_callback_exceptions=True)
 app.config.suppress_callback_exceptions = True
 
-df = pd.read_csv("train.csv")
-
-df.info()
 
 # the style arguments for the sidebar. We use position:fixed and a fixed width
 SIDEBAR_STYLE = {
@@ -17,7 +14,7 @@ SIDEBAR_STYLE = {
     "top": 0,
     "left": 0,
     "bottom": 0,
-    "width": "12rem",
+    "width": "14rem",
     "padding": "2rem 1rem",
     "background-color": "#FF7300",
 }
@@ -25,7 +22,7 @@ SIDEBAR_STYLE = {
 # the styles for the main content position it to the right of the sidebar and
 # add some padding.
 CONTENT_STYLE = {
-    "margin-left": "12rem",
+    "margin-left": "14rem",
     "margin-right": "0rem",
     "padding": "2rem 1rem",
     "width": "auto",
@@ -40,8 +37,10 @@ sidebar = html.Div(
         dbc.Nav(
             [
                 dbc.NavLink("Variable Description", href="/", active="exact"),
-                dbc.NavLink("Page 1", href="/page-1", active="exact"),
-                dbc.NavLink("Page 2", href="/page-2", active="exact"),
+                dbc.NavLink(
+                    "Univariate Variable Analysis", href="/var_analysis", active="exact"
+                ),
+                dbc.NavLink("Basic Analysis", href="/basic_analysis", active="exact"),
             ],
             vertical=True,
             pills=True,
@@ -59,13 +58,13 @@ app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
 def render_page_content(pathname):
     if pathname == "/":
-        return pg1.home
-    elif pathname == "/page-1":
-        return html.P("This is the content of page 1. Yay!")
-    elif pathname == "/page-2":
-        return html.P("Oh cool, this is page 2!")
+        return variable_description.page1
+    elif pathname == "/var_analysis":
+        return variable_analysis.page2
+    elif pathname == "/basic_analysis":
+        return basic_analysis.page3
     # If the user tries to reach a different page, return a 404 message
-    return dbc.Jumbotron(
+    return html.Div(
         [
             html.H1("404: Not found", className="text-danger"),
             html.Hr(),
@@ -75,4 +74,4 @@ def render_page_content(pathname):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True, port=3070)
+    app.run_server(debug=False)
